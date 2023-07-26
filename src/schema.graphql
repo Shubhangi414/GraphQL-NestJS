@@ -5,9 +5,23 @@
 type Book {
   id: Int!
   title: String!
-  price: Int
+  price: Int!
 }
 
 type Query {
+  index: String!
   books: [Book!]!
+  findBookById(bookId: Int!): Book
+}
+
+type Mutation {
+  deleteBookById(bookId: Int!): String!
+  addBook(addBookArgs: AddBookArgs!): String!
+  updateBook(bookId: Int!, updateBookArgs: AddBookArgs!): String!
+}
+
+input AddBookArgs {
+  id: Int!
+  title: String!
+  price: Int!
 }
