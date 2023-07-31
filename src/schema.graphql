@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Book {
+type BookEntity {
   id: Int!
   title: String!
   price: Int!
@@ -10,18 +10,18 @@ type Book {
 
 type Query {
   index: String!
-  books: [Book!]!
-  findBookById(bookId: Int!): Book
+  books: [BookEntity!]!
+  findBookById(bookId: ID!): BookEntity
 }
 
 type Mutation {
-  deleteBookById(bookId: Int!): String!
+  deleteBookById(bookId: ID!): String!
   addBook(addBookArgs: AddBookArgs!): String!
-  updateBook(bookId: Int!, updateBookArgs: AddBookArgs!): String!
+  updateBook(bookId: ID!, updateBookArgs: AddBookArgs!): String!
 }
 
 input AddBookArgs {
-  id: Int!
   title: String!
   price: Int!
+  id: Int
 }

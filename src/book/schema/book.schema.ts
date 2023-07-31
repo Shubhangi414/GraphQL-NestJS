@@ -1,16 +1,14 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
+@Schema()
+export class BookModel extends Document {
+  @Prop()
+  title: string;
 
-@ObjectType()
-export class Book {
-    
-  @Field((type) => Int)
-  id: number;
+  @Prop()
+  price: number;
+}
 
-  @Field()
-  title?: string;
+export const BookSchema = SchemaFactory.createForClass(BookModel);
 
-  @Field((type) => Int)    
-  price?: number;
-
-}       

@@ -1,40 +1,50 @@
-import {Args, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
-import { Book } from "./schema/book.schema";
-import { BookService } from "./book.service";
-import {Book as BookModel} from '../graphql';
-import { AddBookArgs } from "./args/add.book.args";
 
-@Resolver(of => Book)
+import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { BookEntity } from './entity/book.entity';
+import { BookService } from './book.service';
+import { BookModel } from './schema/book.schema';
+import { AddBookArgs } from './args/add.book.args';
+
+@Resolver((of) => BookEntity)
 export class BookResolver {
+  constructor(private readonly bookService: BookService) {}
 
-    constructor(private readonly bookService:BookService){}
-   //Queries and mutations
-   @Query(returns => [Book], {name: "books"})
-getAllBooks():BookModel[]{
+  @Query((returns) => [BookEntity], { name: 'books' })
+  async getAllBooks(): Promise<BookModel[]> {
     return this.bookService.findAllBooks();
-}
+  }
 
-@Query(returns => Book, {name: "findBookById", nullable:true})
-getBookById(@Args({name:"bookId",type:()=>Int})id:number):BookModel{
+  @Query((returns) => BookEntity, { name: 'findBookById', nullable: true })
+  async getBookById(@Args({ name: 'bookId', type: () => ID   }) id: string): Promise<BookModel | null> {
     return this.bookService.findBookById(id);
-}
+  }
 
+  @Mutation((returns) => String, { name: 'deleteBookById' })
+  async deleteBookById(@Args({ name: 'bookId', type: () => ID }) id: string): Promise<string> {
+    await this.bookService.deleteBook(id);
+    return 'Book deleted successfully';
+  }
 
-@Mutation(returns => String, {name: "deleteBookById"})
-deleteBookById(@Args({name:"bookId",type:()=>Int})id:number):string{
-    return this.bookService.deleteBook(id);
-}
+  @Mutation((returns) => String, { name: 'addBook' })
+  async addBook(@Args('addBookArgs') addBookArgs: AddBookArgs): Promise<string> {
+    const newBook: Partial<BookModel> = {
+      title: addBookArgs.title,
+      price: addBookArgs.price,
+    };
+    await this.bookService.addBook(newBook);
+    return 'Book added successfully';
+  }
 
-@Mutation(returns => String, {name: "addBook"})
-addBook(@Args("addBookArgs") addBookArgs: AddBookArgs):string{
-    return this.bookService.addBook(addBookArgs);
-}
-
-@Mutation(returns => String, {name: "updateBook"})
-updateBook(@Args({name:"bookId",type:()=>Int})id:number , @Args("updateBookArgs") updateBookArgs: AddBookArgs):string{
-    return this.bookService.updateBook(id, updateBookArgs);
-}
-
-
-
+  @Mutation((returns) => String, { name: 'updateBook' })
+  async updateBook(
+    @Args({ name: 'bookId', type: () => ID }) id: string,
+    @Args('updateBookArgs') updateBookArgs: AddBookArgs,
+  ): Promise<string> {
+    const updatedBook: Partial<BookModel> = {
+      title: updateBookArgs.title,
+      price: updateBookArgs.price,
+    };
+    await this.bookService.updateBook(updatedBook.id, updatedBook);
+    return 'Book updated successfully';
+  }
 }

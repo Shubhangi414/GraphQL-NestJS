@@ -1,41 +1,38 @@
-import { Injectable } from "@nestjs/common";
-import { BookEntity } from "./entity/book.entity";
 
-
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { BookModel } from './schema/book.schema';
 
 @Injectable()
-export class BookService{
-public booksData:BookEntity[]=[];
+export class BookService {
+  constructor(
+    @InjectModel(BookModel.name)
+    private readonly bookModel: Model<BookModel>,
+  ) {}
 
-addBook(book:BookEntity):string{
-    this.booksData.push(book)
-    return "Book added successfully"
-}
+  async addBook(book: Partial<BookModel>): Promise<string> {
+    await this.bookModel.create(book);
+    return 'Book added successfully';
+  }
 
-updateBook(id:number, updateBook:BookEntity): string{
-    for(let x=0; x<this.booksData.length;x++){
-        if(this.booksData[x].id == id)
-        this.booksData[x]=updateBook
-    }
-    return "Book updated successfully"
-}
+  async updateBook(id: number, updateBook: Partial<BookModel>): Promise<string> {
+    await this.bookModel.findByIdAndUpdate(id, updateBook);
+    return 'Book updated successfully';
+  }
 
-deleteBook(id:number){
-this.booksData = this.booksData.filter((book)=>book.id != id)
-return "Book Deleted Successfully"
-}
+  async deleteBook(id: string): Promise<string> {
+    await this.bookModel.deleteOne({ _id: id });
+    return 'Book Deleted Successfully';
+  }
+// 
+  async findBookById(id: string): Promise<BookModel | null> {
+    return this.bookModel.findById  ({ _id: id  }).exec();
+  }
 
-findBookById(id:number):BookEntity{
-    for(let x=0; x<this.booksData.length;x++){
-        if(this.booksData[x].id==id){
-        return this.booksData[x]
-        }
-}
-}
-
-findAllBooks():BookEntity[]{
-    return this.booksData;
+  async findAllBooks(): Promise<BookModel[]> {
+    return this.bookModel.find().exec();
+  }
 }
 
 
-}
